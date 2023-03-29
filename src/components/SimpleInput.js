@@ -11,12 +11,16 @@ const SimpleInput = props => {
     const formSubmissionHandler = event => {
         event.preventDefault();
 
+        // Adding validation - check if it is empty
+        if (enteredName.trim() === '') {
+            return; // stop the function execution
+        }
+
         console.log(enteredName);
-        // In the React Refs we always have the current property which points to the current value of the ref. Because refs are always objects, we can access the current property.
+
         const enteredValue = nameInputRef.current.value;
         console.log(enteredValue);
 
-        // nameInputRef.current.value = ''; // DOM manupulation is bad. Only React should manipulate the DOM.
         setEnteredName('');
     };
 
