@@ -1,13 +1,18 @@
 import { useState } from 'react';
+import useInput from '../hooks/use-input';
 
 const SimpleInput = props => {
-    const [enteredName, setEnteredName] = useState('');
-    const [enteredNameTouched, setEnteredNameTouched] = useState(false);
+    const {
+        value: enteredName,
+        isValid: enteredNameIsValid,
+        hasError: nameInputHasError,
+        valueChangeHandler: nameChangedHandler,
+        inputBlurHandler: nameBlurHandler,
+        reset: resetNameInput
+    } = useInput(value => value.trim() !== '');
+
     const [enteredEmail, setEnteredEmail] = useState('');
     const [enteredEmailTouched, setEnteredEmailTouched] = useState(false);
-
-    const enteredNameIsValid = enteredName.trim() !== '';
-    const nameInputIsInvalid = !enteredNameIsValid && enteredNameTouched;
 
     const enteredEmailIsValid = enteredEmail.includes('@');
     const enteredEmailIsInvalid = !enteredEmailIsValid && enteredEmailTouched;
@@ -18,16 +23,8 @@ const SimpleInput = props => {
         formIsValid = true;
     }
 
-    const nameInputChangedHandler = event => {
-        setEnteredName(event.target.value);
-    };
-
     const emailInputChangedHandler = event => {
         setEnteredEmail(event.target.value);
-    };
-
-    const nameInputBlurHandler = event => {
-        setEnteredNameTouched(true);
     };
 
     const emailInputBlurHandler = event => {
@@ -37,10 +34,6 @@ const SimpleInput = props => {
     const formSubmissionHandler = event => {
         event.preventDefault();
 
-        // setEnteredNameTouched(true) indicates that the user has touched the input field. If the user has not touched the input field, we do not want to show the error message. If the user has touched the input field, we want to show the error message.
-        setEnteredNameTouched(true);
-
-        // Adding validation - check if it is empty
         if (!enteredNameIsValid) {
             return;
         }
@@ -48,23 +41,21 @@ const SimpleInput = props => {
         console.log(enteredName);
         console.log(enteredEmail);
 
-        // nameInputRef.current.value = ''; => NOT IDEAL, DON'T MANIPULATE THE DOM
-        setEnteredName('');
-        setEnteredNameTouched(false); // to reset the form
+        resetNameInput();
 
         setEnteredEmail('');
-        setEnteredEmailTouched(false); // to reset the form
+        setEnteredEmailTouched(false);
     };
 
-    const nameInputClasses = nameInputIsInvalid ? 'form-control invalid' : 'form-control';
+    const nameInputClasses = nameInputHasError ? 'form-control invalid' : 'form-control';
     const emailInputClasses = enteredEmailIsInvalid ? 'form-control invalid' : 'form-control';
 
     return (
         <form onSubmit={formSubmissionHandler}>
             <div className={nameInputClasses}>
                 <label htmlFor="name">Your Name</label>
-                <input type="text" id="name" onChange={nameInputChangedHandler} onBlur={nameInputBlurHandler} value={enteredName} />
-                {nameInputIsInvalid && <p className="error-text">Name must not be empty</p>}
+                <input type="text" id="name" onChange={nameChangedHandler} onBlur={nameBlurHandler} value={enteredName} />
+                {nameInputHasError && <p className="error-text">Name must not be empty</p>}
             </div>
             <div className={emailInputClasses}>
                 <label htmlFor="email">Your E-Mail</label>
